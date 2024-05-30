@@ -28,7 +28,7 @@ def organize(directory):
         'Protobuf Files': '.proto',
         'Msgpack Files': '.msgpack',
         'Binary Files': '.bin',
-        'Image Files': ['.png', '.jpg', '.gif'],
+        'Image Files': ['.png', '.jpg','jpeg', '.gif'],
         'Audio Files': ['.wav', '.mp3', '.ogg'],
         'Video Files': ['.mp4', '.avi', '.mov'],
         'PDF Files': '.pdf',
@@ -40,7 +40,10 @@ def organize(directory):
         'C and C++ Files': ['.c', '.cpp'],
         'MSWORD Files': '.docx',
         'Executable Files': '.exe',
-        'Log Files': '.log'
+        'Log Files': '.log',
+        'CSS Files':'.css'
+
+
     }#when you organize your files you will create folder using the keys from this dictionary 
     try:
         directory_files = [file for file in os.listdir(directory) if os.path.isfile(os.path.join(directory, file))]
@@ -117,6 +120,7 @@ def F_create():
                 filename = input("enter a name for file (example: main.py or file.txt.. write extension too)\n=>")
                 f =  open(filename,"x")
                 print(f"\n{filename} has been created\n")
+                logging.info(f"{filename} has been created\n")
             elif ans == 2: 
                 print(f"exiting\n")
                 break
@@ -130,38 +134,44 @@ def F_create():
         print(f"{e}")
 def F_delete(directory):
     try: 
+        files = [file for file in os.listdir(directory) if os.path.isfile(file) ]
+        for index in range(len(files)): 
+            print(f"{index}. {files[index]}")
+        print(f"{len(files)}. exit")
         while True:
-            files = [file for file in os.listdir(directory) if os.path.isfile(file) ]
-            for index in range(len(files)): 
-                print(f"{index}. {files[index]}")
-            print(f"{len(files)}. exit")
             ans = input("enter which file you want to delete(index)\n=>")
             for i in range(len(files)):
                 if ans == str(i):
                     print(f"\n{files[i]} has been deleted\n")
-                    os.remove(os.path.join(directory,files[i]))         
+                    os.remove(os.path.join(directory,files[i]))   
+                    logging.info(f"{files[i]} has been deleted\n")      
             if ans == str(len(files)): 
                 print("exiting\n")
                 break
+            else : 
+                print(f"index {ans} not found")
     except ValueError as e :
         print(f"{e}")
     except Exception as e: 
         print(f"{e}")
 def F_remove(directory):
     try: 
+        folders = [folder for folder in os.listdir(directory) if os.path.isdir(folder) ]
+        for index in range(len(folders)): 
+            print(f"{index}. {folders[index]}")
+        print(f"{len(folders)}. exit")
         while True:
-            folders = [folder for folder in os.listdir(directory) if os.path.isdir(folder) ]
-            for index in range(len(folders)): 
-                print(f"{index}. {folders[index]}")
-            print(f"{len(folders)}. exit")
             ans = input("enter which folder you want to delete(index)\n=>")
             for i in range(len(folders)):
                 if ans == str(i):
                     print(f"\n{folders[i]} has been deleted\n")
-                    shutil.rmtree(os.path.join(directory,folders[i]))         
+                    shutil.rmtree(os.path.join(directory,folders[i]))
+                    logging.info(f"{folders[i]} has been deleted\n")         
             if ans == str(len(folders)): 
                 print("exiting\n")
                 break
+            else : 
+                print(f"index {ans} not found")
     except ValueError as e :
         print(f"{e}")
     except Exception as e: 
@@ -198,6 +208,7 @@ def F_rename(directory):
                 if not os.path.isfile(os.path.join(directory,name)):
                     os.rename(os.path.join(directory,fanfol[i]),os.path.join(directory,name))
                     print(f"\n{fanfol[i]} has been renamed to {name}\n")
+                    logging.info(f"{fanfol[i]} has been renamed to {name}\n")
                 else : 
                     print(f"\n{name} exits")
             elif ans == str(len(fanfol)): 
@@ -208,7 +219,48 @@ def F_rename(directory):
         print(f'{e}')        
     except Exception as e: 
         print(f"{e}")
+def F_move(directory): 
+    try: 
+        files = [file for file in os.listdir(directory) if os.path.isfile(file) ]
+        folders = [folder for folder in os.listdir(directory) if os.path.isdir(folder)]
+        print(f"files of {directory}")
+        for index in range(len(files)): 
+            print(f"{index}. {files[index]}")
+        print(f"{len(files)}. exit")
+        ans = int(input("which file do you want move?\n=>"))
+        for i in range(len(files)): 
+            if ans == i: 
+                for j in range(len(folders)): 
+                    print(f'{j}. {folders[j]}')
+            
+                print(f"{len(folders)}. exit")
+                s = int(input(f"where do you want to move the file to ?\n=>"))
+                for k in range(len(folders)):
+                    if s == k : 
+                        source = os.path.join(directory,files[i])
+                        target = os.path.join(os.path.join(directory,folders[j]),files[i])
+                        shutil.move(source,target)
+                        print(f"{files[i]} has been moved to {folders[k]}")
+                        logging.info(f"{files[i]} has been moved to {folders[k]}")
+                        break
+                    elif s == len(folders): 
+                        print("exiting \n")
+                        break
+                    else : 
+                        print("enter proper index \n")
+                break
+            elif ans == len(files):
+                print(f'exiting.. \n')
+                break
+            else : 
+                print("enter proper value\n")
 
+    except FileNotFoundError as e : 
+        print(f'{e}')        
+    except ValueError as e : 
+        print(f'{e}')
+    except Exception as e: 
+        print(f"{e}")
 
 def main():
     try:
@@ -229,13 +281,16 @@ def main():
             print("5. remove folder")
             print("6. display the files  and folders of the current directory")
             print("7. rename a file")
-            print("8. Exit ")
+            print("8. Move file")
+            print("9. Exit ")
             ans = input("=>").strip().lower()
             if ans == '1':
                 print("Reading all files from your current directory.")
+                logging.info(f"file organization has been started  for {directory}\n")
                 organize(directory)
             elif ans == '2':
                 display(directory)
+                logging.info(f"displaying files inside of {directory} \n")
             elif ans == '3':
                 F_create()
             elif ans == '4':
@@ -246,7 +301,9 @@ def main():
                 F_display(directory)
             elif ans == '7':
                 F_rename(directory)
-            elif ans == '8':
+            elif ans == '8': 
+                F_move(directory)
+            elif ans == '9':
                 print("You are now exiting.")
                 logging.info('Exited\n')
                 break
